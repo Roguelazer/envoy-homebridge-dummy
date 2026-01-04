@@ -38,4 +38,4 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv \
 
 USER appuser
 ENTRYPOINT ["/usr/bin/dumb-init"]
-CMD ["uv", "run", "main.py"]
+CMD ["uv", "run", "--no-dev", "main.py"]
