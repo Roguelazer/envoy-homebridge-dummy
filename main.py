@@ -3,11 +3,13 @@ import logging
 import os
 import sys
 import time
+import signal
+import typing as t
 
 import requests
 
 
-def add_env_arg(parser, env, *, default=None, help=None, type=str):
+def add_env_arg(parser: argparse.ArgumentParser, env: str, *, default=None, help: t.Optional[str] = None, type=str):
     help = help or ""
     default = os.environ.get(env) or default
     long = "--" + env.lower().replace("_", "-")
@@ -21,7 +23,7 @@ def add_env_arg(parser, env, *, default=None, help=None, type=str):
 
 
 class Dingus:
-    def __init__(self, args):
+    def __init__(self, args: argparse.Namespace):
         self.args = args
         self.session = requests.Session()
         self.last_grid_state = None
@@ -40,7 +42,7 @@ class Dingus:
             self.send_notification(grid_state)
             self.last_grid_state = grid_state
 
-    def send_notification(self, state):
+    def send_notification(self, state: str):
         value = state in ["on-grid", "multimode-ongrid"]
         self.session.post(
             self.args.homebridge_webhook_url,
@@ -67,13 +69,26 @@ def main():
 
     dingus = Dingus(args)
 
-    while True:
+    running = [True]
+
+    def stop(*args):
+        log.info("Shutting down")
+        running[0] = False
+
+    for sig in (signal.SIGINT, signal.SIGQUIT, signal.SIGTERM):
+        signal.signal(sig, stop)
+
+    while running[0]:
+        log.debug("running control loop")
+        next_target = time.monotonic() + args.interval
         try:
             dingus.run_once()
-        except Exception:
-            log.exception("Error in poll")
-            time.sleep(30)
-        time.sleep(args.interval)
+        except Exception as exc:
+            log.exception(f"Error in loop: {exc}")
+        now = time.monotonic()
+        while now < next_target and running[0]:
+            time.sleep(min(1, next_target - now))
+            now = time.monotonic()
 
 
 if __name__ == "__main__":

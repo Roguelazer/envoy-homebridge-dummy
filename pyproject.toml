@@ -3,7 +3,17 @@ name = "envoy-homebridge-dummy"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
+license = "ISC"
 requires-python = ">=3.13"
 dependencies = [
     "requests>=2.32.5",
 ]
+
+[dependency-groups]
+dev = [
+  "ty>=0.0.8",
+  "types-requests == 2.*",
+]
+
+[tool.ruff]
+line-length = 120
