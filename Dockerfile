@@ -29,12 +29,12 @@ RUN uv venv
 RUN --mount=type=cache,target=/home/appuser/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --locked --no-install-project
+    uv sync --locked --no-install-project --no-dev
 
 COPY . /app
 # Sync the project
 RUN --mount=type=cache,target=/home/appuser/.cache/uv \
-    uv sync --locked
+    uv sync --locked --no-dev
 
 USER appuser
 ENTRYPOINT ["/usr/bin/dumb-init"]
