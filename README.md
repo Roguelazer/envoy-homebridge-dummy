@@ -1,0 +1,1 @@
+This is a tiny application to synchronize between the grid state from [envoyproxy](https://github.com/Roguelazer/envoyproxy) and a [homebridge-dummy](https://github.com/mpatfield/homebridge-dummy) webhook.

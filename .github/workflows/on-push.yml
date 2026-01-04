@@ -1,0 +1,16 @@
+name: "On Push to Main"
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+  packages: write
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+  deploy-to-ghcr:
+    needs: [ci]
+    uses: ./.github/workflows/deploy.yml
+    secrets: inherit
