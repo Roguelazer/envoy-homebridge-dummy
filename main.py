@@ -26,8 +26,10 @@ class Dingus:
     def __init__(self, args: argparse.Namespace):
         self.args = args
         self.session = requests.Session()
-        self.last_grid_state = None
+        self.last_grid_state: t.Optional[str] = None
         self.log = logging.getLogger("envoy-homebridge-dummy")
+        self.refresh_interval = args.interval * 6
+        self.next_refresh = time.monotonic() + self.refresh_interval
 
     def run_once(self):
         response = self.session.get(self.args.envoyproxy_url)
@@ -41,6 +43,11 @@ class Dingus:
             self.log.info("Grid state transititions to %s", grid_state)
             self.send_notification(grid_state)
             self.last_grid_state = grid_state
+            self.next_refresh = time.monotonic() + self.refresh_interval
+        elif time.monotonic() >= self.next_refresh and self.last_grid_state is not None:
+            self.log.info("Sending refresh for %s", self.last_grid_state)
+            self.send_notification(self.last_grid_state)
+            self.next_refresh = time.monotonic() + self.refresh_interval
 
     def send_notification(self, state: str):
         value = state in ["on-grid", "multimode-ongrid"]
