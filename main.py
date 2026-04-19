@@ -37,7 +37,7 @@ class Dingus:
         response = response.json()
         grid_state = response.get("grid_state")
         if grid_state is None:
-            self.log.warn("This system doesn't have a meter collar")
+            self.log.warning("This system doesn't have a meter collar")
             return
         if grid_state != self.last_grid_state:
             self.log.info("Grid state transititions to %s", grid_state)
