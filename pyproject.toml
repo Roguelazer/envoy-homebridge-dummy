@@ -11,7 +11,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "ty>=0.0.34",
+  "ty>=0.0.37",
   "types-requests == 2.*",
 ]
 
